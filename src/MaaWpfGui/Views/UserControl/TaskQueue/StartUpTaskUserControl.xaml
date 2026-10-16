@@ -11,6 +11,7 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:helper="clr-namespace:MaaWpfGui.Helper"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:properties="clr-namespace:MaaWpfGui.Styles.Properties"
     xmlns:s="https://github.com/canton7/Stylet"
     xmlns:settings_vms="clr-namespace:MaaWpfGui.ViewModels.UserControl.Settings"
     xmlns:taskQueue_vms="clr-namespace:MaaWpfGui.ViewModels.UserControl.TaskQueue"
@@ -22,7 +23,7 @@
     mc:Ignorable="d">
     <StackPanel>
         <StackPanel d:Visibility="Visible" Visibility="{c:Binding 'ConnectConfig != enums:ConnectConfig.PC', Source={x:Static settings_vms:ConnectSettingsUserControlModel.Instance}}">
-            <StackPanel d:Visibility="Visible" Visibility="{c:Binding 'ClientType == enums:ClientType.Official or ClientType == enums:ClientType.Bilibili or ClientType == enums:ClientType.Txwy', Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}">
+            <StackPanel d:Visibility="Visible" Visibility="{c:Binding 'ClientType == enums:ClientType.Official or ClientType == enums:ClientType.Bilibili or ClientType == enums:ClientType.Txwy or ClientType == enums:ClientType.KR', Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}">
                 <StackPanel
                     Margin="0,5"
                     HorizontalAlignment="Left"
@@ -38,7 +39,7 @@
                     <TextBox
                         Grid.Column="0"
                         hc:BorderElement.CornerRadius="4,0,0,4"
-                        IsReadOnly="{c:Binding !Idle,
+                        IsReadOnly="{c:Binding !Run.Idle,
                                                Source={x:Static helper:Instances.SettingsViewModel}}"
                         Text="{Binding AccountName, UpdateSourceTrigger=PropertyChanged}" />
                     <Button
@@ -53,29 +54,31 @@
                         IsEnabled="{c:Binding 'AccountName != &quot;&quot;'}" />
                 </Grid>
             </StackPanel>
-
-            <controls:TextBlock
-                Margin="0,5"
-                HorizontalAlignment="Center"
-                FontWeight="Bold"
-                Text="{DynamicResource MultiTasksShareTip}"
-                TextAlignment="Left"
-                TextWrapping="Wrap" />
-            <CheckBox
-                Margin="0,5"
-                Content="{DynamicResource StartGameLaunchClient}"
-                IsChecked="{Binding StartGame, Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}" />
-            <hc:ComboBox
-                Margin="0,5"
-                hc:InfoElement.Title="{DynamicResource ClientType}"
-                DisplayMemberPath="Display"
-                IsHitTestVisible="{Binding Idle, Source={x:Static helper:Instances.SettingsViewModel}}"
-                ItemsSource="{Binding ClientTypeList, Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}"
-                SelectedValue="{Binding ClientType, Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}"
-                SelectedValuePath="Value"
-                Visibility="{c:Binding !TaskSettingVisibilities.Guide,
-                                       Source={x:Static helper:Instances.SettingsViewModel}}" />
         </StackPanel>
+
+        <controls:TextBlock
+            Margin="0,5"
+            HorizontalAlignment="Center"
+            FontWeight="Bold"
+            Text="{DynamicResource MultiTasksShareTip}"
+            TextAlignment="Left"
+            TextWrapping="Wrap" />
+        <CheckBox
+            Margin="0,5"
+            d:Visibility="Visible"
+            Content="{DynamicResource StartGameLaunchClient}"
+            IsChecked="{Binding StartGame, Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}"
+            Visibility="{c:Binding 'ConnectConfig != enums:ConnectConfig.PC',
+                                   Source={x:Static settings_vms:ConnectSettingsUserControlModel.Instance}}" />
+        <hc:ComboBox
+            Margin="0,5"
+            hc:InfoElement.Title="{DynamicResource ClientType}"
+            DisplayMemberPath="Display"
+            ItemsSource="{Binding ClientTypeList, Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}"
+            SelectedValue="{Binding ClientType, Source={x:Static settings_vms:GameSettingsUserControlModel.Instance}}"
+            SelectedValuePath="Value"
+            Visibility="{c:Binding !TaskSettingVisibilities.Guide,
+                                   Source={x:Static helper:Instances.SettingsViewModel}}" />
 
         <StackPanel s:View.ActionTarget="{Binding DataContext, RelativeSource={RelativeSource Self}}" DataContext="{Binding Source={x:Static settings_vms:ConnectSettingsUserControlModel.Instance}}">
             <StackPanel d:Visibility="Visible" Visibility="{c:Binding 'ConnectConfig != enums:ConnectConfig.PC'}">
@@ -104,14 +107,21 @@
                 SelectedValue="{Binding ConnectConfig}"
                 SelectedValuePath="Value" />
 
-            <TextBlock
-                Margin="5,0"
-                HorizontalAlignment="Center"
-                d:Visibility="Visible"
-                Foreground="Red"
-                Text="{DynamicResource UseAttachWindowWarning}"
-                TextWrapping="Wrap"
-                Visibility="{c:Binding 'ConnectConfig == enums:ConnectConfig.PC'}" />
+            <StackPanel d:Visibility="Visible" Visibility="{c:Binding 'ConnectConfig == enums:ConnectConfig.PC'}">
+                <TextBlock
+                    Margin="5,0"
+                    HorizontalAlignment="Left"
+                    Foreground="{DynamicResource ErrorLogBrush}"
+                    Text="{DynamicResource UseAttachWindowWarning}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Margin="5,0"
+                    HorizontalAlignment="Left"
+                    properties:RainbowAnimationBehavior.IsActive="True"
+                    Foreground="{DynamicResource RainbowFlowBrush}"
+                    Text="{DynamicResource UseAttachWindowWarningRecommendation}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
 
             <!--  ADB 连接配置区域  -->
             <StackPanel d:Visibility="Visible" Visibility="{c:Binding 'ConnectConfig != enums:ConnectConfig.PC'}">
@@ -135,20 +145,16 @@
                         Content="{DynamicResource Select}" />
                 </Grid>
 
-                <Grid Margin="0,5" Visibility="{c:Binding !AutoDetectConnection}">
+                <StackPanel Margin="0,5" Visibility="{c:Binding !AutoDetectConnection}">
                     <StackPanel
+                        Margin="8,0,0,5"
                         HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
                         Orientation="Horizontal">
-                        <TextBlock
-                            Margin="8,0,0,0"
-                            Text="{DynamicResource ConnectionAddress}"
-                            Visibility="Hidden" />
-                        <controls:TooltipBlock Margin="0,0,5,0" TooltipText="{DynamicResource ConnectionAddressTip}" />
+                        <controls:TextBlock Text="{DynamicResource ConnectionAddress}" />
+                        <controls:TooltipBlock TooltipText="{DynamicResource ConnectionAddressTip}" />
                     </StackPanel>
                     <hc:ComboBox
                         HorizontalContentAlignment="Stretch"
-                        hc:InfoElement.Title="{DynamicResource ConnectionAddress}"
                         IsEditable="True"
                         ItemsSource="{Binding ConnectAddressHistory}"
                         Text="{Binding ConnectAddress, UpdateSourceTrigger=LostFocus}">
@@ -180,16 +186,39 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </hc:ComboBox>
-                </Grid>
+                </StackPanel>
 
-                <hc:ComboBox
-                    Margin="0,5"
-                    hc:InfoElement.Title="{DynamicResource TouchMode}"
-                    DisplayMemberPath="Display"
-                    IsHitTestVisible="{Binding Idle, Source={x:Static helper:Instances.SettingsViewModel}}"
-                    ItemsSource="{Binding TouchModeList}"
-                    SelectedValue="{Binding TouchMode}"
-                    SelectedValuePath="Value" />
+                <StackPanel Margin="0,5">
+                    <StackPanel
+                        Margin="8,0,0,5"
+                        HorizontalAlignment="Left"
+                        Orientation="Horizontal">
+                        <controls:TextBlock Text="{DynamicResource TouchMode}" />
+                        <controls:TooltipBlock>
+                            <controls:TooltipBlock.CustomToolTip>
+                                <StackPanel MaxWidth="400">
+                                    <MediaElement
+                                        Width="252"
+                                        Height="268"
+                                        IsMuted="True"
+                                        LoadedBehavior="Play"
+                                        Source="{Binding Source={x:Static settings_vms:ConnectSettingsUserControlModel.TouchModeVideoPath}}" />
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        FontSize="12"
+                                        Foreground="{DynamicResource PrimaryTextBrush}"
+                                        Text="{DynamicResource TouchModeTip}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </controls:TooltipBlock.CustomToolTip>
+                        </controls:TooltipBlock>
+                    </StackPanel>
+                    <hc:ComboBox
+                        DisplayMemberPath="Display"
+                        ItemsSource="{Binding TouchModeList}"
+                        SelectedValue="{Binding TouchMode}"
+                        SelectedValuePath="Value" />
+                </StackPanel>
             </StackPanel>
 
             <!--  额外配置  -->
@@ -214,7 +243,7 @@
                                 </CheckBox>
                                 <hc:TextBox
                                     Margin="0,5"
-                                    hc:InfoElement.Placeholder="Example: C:\Program Files\Netease\MuMuPlayer"
+                                    hc:InfoElement.Placeholder="{DynamicResource MuMu12EmulatorPathPlaceholder}"
                                     hc:TitleElement.Title="{DynamicResource MuMu12EmulatorPath}"
                                     hc:TitleElement.TitlePlacement="Top"
                                     Text="{Binding EmulatorPath}" />
@@ -249,7 +278,7 @@
                             <StackPanel d:Visibility="Visible" Visibility="{c:Binding Enable}">
                                 <hc:TextBox
                                     Margin="0,5"
-                                    hc:InfoElement.Placeholder="Example: C:\leidian\LDPlayer9"
+                                    hc:InfoElement.Placeholder="{DynamicResource LdEmulatorPathPlaceholder}"
                                     hc:TitleElement.Title="{DynamicResource LdEmulatorPath}"
                                     hc:TitleElement.TitlePlacement="Left"
                                     Text="{Binding EmulatorPath}" />
@@ -278,7 +307,18 @@
                                 DisplayMemberPath="Display"
                                 ItemsSource="{Binding ScreencapMethodList}"
                                 SelectedValue="{Binding ScreencapMethod}"
-                                SelectedValuePath="Value" />
+                                SelectedValuePath="Value">
+                                <hc:ComboBox.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource ComboBoxItemBaseStyle}" TargetType="{x:Type ComboBoxItem}">
+                                        <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Opacity" Value="0.4" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:ComboBox.ItemContainerStyle>
+                            </hc:ComboBox>
 
                             <hc:ComboBox
                                 Margin="0,5"
@@ -286,7 +326,18 @@
                                 DisplayMemberPath="Display"
                                 ItemsSource="{Binding MouseMethodList}"
                                 SelectedValue="{Binding MouseMethod}"
-                                SelectedValuePath="Value" />
+                                SelectedValuePath="Value">
+                                <hc:ComboBox.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource ComboBoxItemBaseStyle}" TargetType="{x:Type ComboBoxItem}">
+                                        <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Opacity" Value="0.4" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:ComboBox.ItemContainerStyle>
+                            </hc:ComboBox>
 
                             <hc:ComboBox
                                 Margin="0,5"
@@ -301,20 +352,29 @@
             </ContentControl>
 
             <!--  截图测试  -->
-            <StackPanel d:Visibility="Visible" Visibility="{c:Binding 'ConnectConfig != enums:ConnectConfig.PC'}">
+            <StackPanel Orientation="Horizontal">
                 <Button
                     Height="30"
                     Margin="0,5"
                     HorizontalAlignment="Left"
                     Command="{s:Action TestLinkAndGetImage}"
                     Content="{DynamicResource ScreenshotTest}" />
-                <controls:TextBlock
-                    Margin="0,5"
+                <Button
+                    Height="30"
+                    Margin="10,5,0,5"
                     HorizontalAlignment="Left"
-                    Text="{Binding TestLinkInfo}"
-                    TextWrapping="Wrap"
-                    Visibility="{c:Binding 'TestLinkInfo!=&quot;&quot;'}" />
+                    Command="{s:Action RestoreGameWindowPosition,
+                                       Target={x:Static helper:Instances.AsstProxy}}"
+                    Content="{DynamicResource WindowRestore}"
+                    Visibility="{c:Binding ShowWindowRestoreButton}" />
             </StackPanel>
+
+            <controls:TextBlock
+                Margin="0,5"
+                HorizontalAlignment="Left"
+                Text="{Binding TestLinkInfo}"
+                TextWrapping="Wrap"
+                Visibility="{c:Binding 'TestLinkInfo!=&quot;&quot;'}" />
         </StackPanel>
     </StackPanel>
 </UserControl>

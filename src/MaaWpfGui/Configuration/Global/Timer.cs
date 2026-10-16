@@ -1,6 +1,6 @@
 // <copyright file="Timer.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -13,10 +13,6 @@
 
 using System;
 using System.Text.Json.Serialization;
-using MaaWpfGui.Configuration.Factory;
-using MaaWpfGui.Helper;
-using MaaWpfGui.Utilities;
-using MaaWpfGui.ViewModels.UserControl.Settings;
 using Stylet;
 
 namespace MaaWpfGui.Configuration.Global;
@@ -48,12 +44,6 @@ public class Timer : PropertyChangedBase
     }
 
     public int Id { get; set; }
-
-    private static string _Name => LocalizationHelper.GetString("Timer");
-
-    [PropertyDependsOn(typeof(GuiSettingsUserControlModel), nameof(GuiSettingsUserControlModel.Language))]
-    [JsonIgnore]
-    public string Name => $"{_Name} {Id + 1}";
 
     [JsonInclude]
     public bool? IsEnabled { get; set => SetAndNotify(ref field, value); } = false;

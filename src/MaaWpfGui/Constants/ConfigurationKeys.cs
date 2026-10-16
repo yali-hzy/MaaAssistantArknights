@@ -1,6 +1,6 @@
 // <copyright file="ConfigurationKeys.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -103,8 +103,10 @@ public static class ConfigurationKeys
     public const string EmulatorAddCommand = "Start.EmulatorAddCommand"; // √
     public const string EmulatorWaitSeconds = "Start.EmulatorWaitSeconds"; // √
 
+    // 旧版掉线重连开关，功能已移除，仅用于迁移时清理残留配置
+    public const string AutoRestartOnDrop = "Start.AutoRestartOnDrop";
+
     // 仅在理智作战的任务中会生效，前缀需要修改
-    public const string AutoRestartOnDrop = "Start.AutoRestartOnDrop"; // √
     public const string StartsWithScript = "Start.StartsWithScript"; // √
     public const string EndsWithScript = "Start.EndsWithScript"; // √
     public const string CopilotWithScript = "Start.CopilotWithScript"; // √

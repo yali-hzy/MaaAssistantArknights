@@ -1,6 +1,6 @@
 // <copyright file="AsstRecruitTask.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -50,6 +50,11 @@ public class AsstRecruitTask : AsstBaseTask
     /// Gets or sets 会去点击确认的 Tag 等级，必选。若仅公招计算，可设置为空数组
     /// </summary>
     public List<int> ConfirmList { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets 自动确认 3 星时保留的招聘许可数量。0 表示不保留。
+    /// </summary>
+    public int Level3RecruitmentPermitReserve { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether 是否设置招募时限。仅在 times 为 0 时生效，可选，默认 true
@@ -150,6 +155,7 @@ public class AsstRecruitTask : AsstBaseTask
             ["force_refresh"] = ForceRefresh,
             ["select"] = JArray.FromObject(SelectList),
             ["confirm"] = JArray.FromObject(ConfirmList),
+            ["level3_recruitment_permit_reserve"] = Level3RecruitmentPermitReserve,
             ["times"] = RecruitTimes,
             ["set_time"] = SetRecruitTime,
             ["expedite"] = UseExpedited,

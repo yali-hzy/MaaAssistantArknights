@@ -1,6 +1,6 @@
 // <copyright file="ResourceUpdater.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -14,9 +14,9 @@
 #nullable enable
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -345,7 +345,7 @@ public static class ResourceUpdater
                 return ret;
             }
 
-            if (SettingsViewModel.VersionUpdateSettings.UpdateSource == "MirrorChyan" &&
+            if (SettingsViewModel.VersionUpdateSettings.UpdateSource == UpdateSource.MirrorChyan &&
                 await DownloadFromMirrorChyanAsync(uri, releaseNote))
             {
                 return CheckUpdateRetT.OnlyGameResourceUpdated;
@@ -398,6 +398,11 @@ public static class ResourceUpdater
             DataHelper.Reload();
             SettingsViewModel.VersionUpdateSettings.ResourceInfoUpdate();
             ToastNotification.ShowDirect(LocalizationHelper.GetString("GameResourceUpdated"));
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to reload resource after import");
+            ToastNotification.ShowDirect(LocalizationHelper.GetString("GameResourceFailed"));
         }
         finally
         {
@@ -507,6 +512,12 @@ public static class ResourceUpdater
             SettingsViewModel.VersionUpdateSettings.NewResourceFoundInfo = string.Empty;
             return LocalResourcePackageImportStatus.Imported;
         }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to import local resource package: {PackagePath}", packagePath);
+            ToastNotification.ShowDirect(LocalizationHelper.GetString("GameResourceFailed"));
+            return LocalResourcePackageImportStatus.Failed;
+        }
         finally
         {
             SettingsViewModel.VersionUpdateSettings.IsCheckingForUpdates = false;
@@ -514,7 +525,7 @@ public static class ResourceUpdater
     }
 
     /// <summary>
-    /// 导入本地资源更新包并重载资源。重载采用 fire-and-forget，避免长时间占用 <see cref="VersionUpdateSettings.IsCheckingForUpdates"/>。
+    /// 导入本地资源更新包并重载资源。重载采用 fire-and-forget，避免长时间占用 <see cref="VersionUpdateSettingsUserControlModel.IsCheckingForUpdates"/>。
     /// </summary>
     /// <param name="packagePath">压缩包路径。</param>
     /// <param name="packageDateTime">由 <see cref="IsResourcePackage"/> 预检测得到的时间戳。</param>
@@ -689,11 +700,20 @@ public static class ResourceUpdater
             Directory.CreateDirectory(destDirName);
         }
 
+        // version.json 最后复制：若中途失败，本地资源版本仍是旧值，
+        // 下次启动会重新检测到资源更新并重试，避免留下 ｢部分新部分旧｣ 却被认为已是最新
+        FileInfo? versionFile = null;
         FileInfo[] files = dir.GetFiles();
         foreach (FileInfo file in files)
         {
             if (file.Name == ".gitignore")
             {
+                continue;
+            }
+
+            if (file.Name == "version.json")
+            {
+                versionFile = file;
                 continue;
             }
 
@@ -706,5 +726,7 @@ public static class ResourceUpdater
             string tempPath = Path.Combine(destDirName, subDir.Name);
             DirectoryMerge(subDir.FullName, tempPath);
         }
+
+        versionFile?.CopyTo(Path.Combine(destDirName, versionFile.Name), true);
     }
 }

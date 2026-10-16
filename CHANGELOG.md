@@ -1,41 +1,17 @@
-## v6.16.4
+## v6.20.0-beta.1
 
 ### Highlights
 
-#### 适配新代理倍率
+#### 基建换班支持训练室与回收站
 
-游戏代理倍率上限已提升至 10 倍。本版本全面适配新的倍率列表界面与识别逻辑，支持最高 10 倍连战，并移除此前因未适配而临时锁定的限制，AUTO 与手动倍率切换可正常使用。
-
-#### 背景选择器增强
-
-背景设置支持树形结构选择与缩略图预览，自定义界面更方便。
-
-#### 更新后自动运行可控
-
-新增「更新后立即重启时不自动运行」选项；启动自动运行任务或模拟器前增加 10 秒倒计时确认，避免更新重启后非预期地直接开跑。
-
-#### 库存保持任务增强
-
-库存保持任务 UI 重构：新增理智药/源石全局开关与临期药支持，并提供芯片、龙门币、采购凭证、技巧概要等刷图预设，计划管理更方便。
+新增基建新设施 ｢回收站｣ 的换班支持，常规模式按技能评分选择进驻干员；自定义基建排班可配置回收站与训练室，训练室分别指定训练位与协助者的候选干员；候选干员或编组不可用时房间保持原样，任务日志附原因提示。
 
 <details>
 <summary><b>English</b></summary>
 
-#### New Series Multiplier Support
+#### Infrast Shift Support for the Training Room and the Recycling Station
 
-In-game series (proxy) multiplier cap is now up to 10x. This version fully adapts to the new series list UI and recognition logic, supports up to 10x consecutive battles, and removes the temporary lock used before adaptation so AUTO and manual multiplier switching work normally again.
-
-#### Enhanced Background Picker
-
-Background settings now support a tree-style picker with thumbnail previews for easier customization.
-
-#### Controllable Auto-Run After Update
-
-Added an option to skip auto-run after an immediate post-update restart, plus a 10-second countdown confirmation before automatically starting tasks or the emulator, preventing unexpected runs after update restarts.
-
-#### Enhanced Depot Maintain Task
-
-Refactored the depot maintain task UI with global medicine/originium toggles and expiring-medicine support, plus farming presets for chips, LMD, certificates, and skill summaries for easier plan management.
+Adds shift support for the new facility "Recycling Station", where operators are selected by skill score in Normal Mode; the Custom Base Mode schedule can now configure the Recycling Station and the Training Room, specifying candidates for the training slot and the assistant separately; when candidates or groups are unavailable, the room is kept unchanged, with the reason shown in the task log.
 
 </details>
 
@@ -44,97 +20,46 @@ Refactored the depot maintain task UI with global medicine/originium toggles and
 以下是详细内容：
 
 <details open>
-<summary><b>v6.16.4 (2026-08-04)</b></summary>
-
-### 修复 | Fix
-
-* 修复 Win32IO 竞争条件导致的 `am start` 误判失败，并修正超时路径的异步 I/O 取消与资源释放 ([#17545](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17545)) @ABA2396
-* 修复 SplitButton 在亮色模式下显示异常 @ABA2396
-* YostarJP fix TA (SS) activity OCR mismatch causing wrong activity navigation @Jason's-Miku
-
-</details>
-
-<details>
-<summary><b>v6.16.3 (2026-08-03)</b></summary>
-
-### 改进 | Improved
-
-* 重构库存保持计划项为独立 ViewModel，按索引同步任务配置 ([#17468](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17468)) @status102
-* 优化库存保持预设按钮：左侧区域可点击展开下拉，并统一 SplitButton 背景样式 @ABA2396
-* 更新进度窗口不再强制置顶，仅在开始更新时前置一次，避免打断全屏游戏或其他操作 ([#17525](https://github.com/MaaAssistantArknights/MaaAssistantArknights/issues/17525)) @ABA2396
-* 统一配置与启动设置下拉列表中的删除按钮样式 @ABA2396
-
-### 修复 | Fix
-
-* 修复刷理智选择代理倍率后未关闭次数列表的问题 @status102
-* 修复 iOS/PlayCover 基建办公室入口模板阈值过高导致识别失败的问题 ([#17527](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17527)) @Rememorio
-
-</details>
-
-<details>
-<summary><b>v6.16.2 (2026-08-02)</b></summary>
+<summary><b>v6.20.0-beta.1 (2026-10-16)</b></summary>
 
 ### 新增 | New
 
-* 库存保持任务 UI 重构：新增理智药/源石全局开关与临期药支持，并提供芯片、龙门币、采购凭证、技巧概要等刷图预设 ([#17512](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17512)) @ABA2396
+* 基建自定义排班新增训练室与回收站设施支持，训练室可分别配置训练位与协助者的候选干员（训练位需已精二且仍有可专精的技能，协助者不限）；候选干员或编组不可用时房间保持原样，任务日志以设施卡片附原因提示；房间数组留空时整设施保持原样，未覆盖到的房间不换班并提示；候选选人排除正在工作中的干员，宿舍在干员心情回满后才让位；一键收获识别回收站 ｢材料产出｣ ([#18632](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18632)) @ABA2396
+* 基建常规换班支持回收站设施，按技能评分选择进驻干员 ([#18601](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18601)) @Lancarus @youzibigg @ABA2396
 
 ### 改进 | Improved
 
-* 优化库存保持界面布局与显示，清空计划时增加确认弹窗 @ABA2396
+* 完善黑流树海 ｢秘境行商｣ 交易流程，第一层进入行商时只培育补货不出售，第二层起出售闲置自然物并优先回购增值物品，交易异常时停止交易并离店 ([#18667](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18667)) @ZiyinLin
+* 调整黑流树海路线偏好权重，第二层偏向 ｢不期而遇｣ 节点，带线人角标的不期而遇额外加分 ([#18664](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18664)) @ZiyinLin
+* 优化黑流树海阶段目标的界面上报，按访问次数计分的路线偏好不再刷屏，界面按已完成、已错过或无法完成着色显示；节点外语名称与既有肉鸽主题译名统一 ([#18663](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18663)) @ZiyinLin
+* 材料合成与回收站换班选人时排除已进驻其他生产设施与训练室的干员 ([#18654](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18654)) @youzibigg @ABA2396
+* 会客室入驻优先级新增克莱门莎 ([#18675](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18675)) @Reverse0xCC
+* 优化基建设施设置页布局，默认基建选择合并为组合控件 @ABA2396
+* YostarJP update OCR replacements, add Zelgrad to OrundumActivities and add Reconstruct theme navigation templates ([#18669](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18669)) @Manicsteiner
+* YostarKR add EP17-related OCR entries and the OrundumActivities notice board entrance @HX3N
+* YostarKR recognize the unexecuted production plan popup when switching facilities @HX3N
+* YostarEN add Zelgrad to OrundumActivities @Constrat
 
 ### 修复 | Fix
 
-* 修复库存保持界面未选择掉落物时切换语言无法正确显示的问题 @ABA2396
-* YostarEN fix Mountain OCR regex matching @Constrat
+* 修复基建换班切换设施时被 ｢尚未执行新的制造计划，确认离开设施｣ 弹窗卡住、后续任务全部失败的问题；源石碎片补货改为等待更改确认完成，换产物失败时同样处理该弹窗 ([#18655](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18655)) @djx-trans-n @ABA2396
+* 修复水月肉鸽结算后卡在数据回溯界面的问题 ([#18656](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18656)) @chanshengbinying
+* 修复快速编队职业筛选 ｢ALL｣ 按钮被 OCR 误读为 ｢ALI｣ ｢AL1｣ ｢AL[｣ 等导致筛选失效的问题 ([#18619](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18619) [#18625](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18625)) @youzibigg @Aliothmoon
+* 放宽加载提示的 OCR 匹配以容错误读，修复高延迟下等待提前结束打断流程的问题（国服） ([#18650](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18650)) @djx-trans-n
+* 修正肉鸽招募配置中 ｢骋风｣ ｢艾丝黛尔｣ 等干员名错别字，修复对应干员招募优先级不生效的问题 ([#18677](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18677)) @chanshengbinying
+* 修复肉鸽第二、三位开局干员头像显示异常的问题 @ABA2396
+* 修复可搜索下拉框在输入法组字期间误过滤并意外选中干员的问题，影响肉鸽开局干员、关卡选择、干员培养与库存保持的输入框 ([#18631](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18631)) @Aliothmoon
+* 修复干员培养任务页面计划列表显示不全的问题 @status102
 
-</details>
+### 文档 | Docs
 
-<details>
-<summary><b>v6.16.1 (2026-08-02)</b></summary>
+* 明确黑流树海购物配置的适用范围与校验规则，命名买卖表与价格字段仅对黑流树海生效 ([#18670](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18670)) @ZiyinLin
+* 修复文档中 33 处失效的站内锚点链接（目标小节更名 10 处、Unicode 规范化差异 23 处） ([#18620](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18620) [#18629](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18629)) @chanshengbinying
 
-~~MAA不会在周██凌晨更新。如果收到更新提示，请忽略，不要查看更新公告，直到周██。~~
+### 其他 | Other
 
-### 改进 | Improved
-
-* 更新后自动运行倒计时弹窗移除关闭按钮，避免误关后仍继续自动运行 @ABA2396
-
-### 修复 | Fix
-
-* 使用 DXGI 适配器 LUID 解析 GPU OCR 设备，避免多显卡环境下绑定错误 GPU；解析失败或执行提供程序不可用时回退 CPU ([#17488](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17488)) @GSY707
-* 修复 MuMu display id 在 fallback 时被错误缓存，避免连接时游戏未启动导致截图/触控锁死在错误窗口 @ABA2396
-* 修复「直到大地变成一颗酸橙」活动上次战斗关卡未在后三关结束时关卡导航错误 @ABA2396
-* 修复 FightTask 在新代理倍率列表下无法指定 7~10 倍的参数校验 @status102
-
-</details>
-
-<details>
-<summary><b>v6.16.0 (2026-08-01)</b></summary>
-
-### 新增 | New
-
-* 适配游戏新代理倍率设置与列表界面，支持最高 10 倍连战，并移除临时锁定限制 ([#17500](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17500)) @status102 @ABA2396
-* 背景设置支持树形选择器与缩略图预览 @ABA2396
-* 新增「更新后立即重启时不自动运行」选项，启动自动运行前增加 10 秒倒计时确认 ([#17483](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17483)) @ABA2396
-* 新增「直到大地变成一颗酸橙」活动关卡导航 @ABA2396
-
-### 改进 | Improved
-
-* 增强 MouseWheelHelper：弹层打开时隔离外层页面滚动，避免滚动穿透 @ABA2396
-* 库存保持任务先比较库存数量再判断关卡开放状态，已满足目标时直接跳过 @ABA2396
-* MuMu / Win32 触控对齐 minitouch 默认延迟，提升点击稳定性 @ABA2396
-* 优化自动战斗新活动关卡提示文案 @ABA2396
-* 优化库存保持 Item 初始化与作业解析干员属性要求默认值处理 @status102
-
-### 修复 | Fix
-
-* 修复未开启截图增强时 MuMu 后台保活检测失效的问题 @ABA2396
-* 修复开启自动检测连接时无法修改 Extra 配置的问题 ([#17480](https://github.com/MaaAssistantArknights/MaaAssistantArknights/issues/17480)) @ABA2396
-* 修复更新数据任务仅勾选仓库识别时被跳过的问题 ([#17482](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17482)) @2436238575 @ABA2396
-* 修复自动战斗多作业模式超长关卡名显示异常 @ABA2396
-* 修复自动战斗添加作业时地图信息不存在的提示错误使用 stageCode 的问题 @status102
-* 修复「直到大地变成一颗酸橙」关卡 OCR 可能将 TO 识别为 T0 的问题 @ABA2396
-* 修复 BadModules 在注入环境下弹窗崩溃，回退至 Win32 MessageBox @ABA2396
-* 修正 PC 端推荐分辨率文案为 1280x720 / 1920x1080 @ABA2396
-* YostarKR add BattleQuickFormationClear2 for Vector Breakthrough @HX3N
+* CI 对 PR 标题自动补齐中英文间空格 ([#18657](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18657)) @satgo1546
+* 修复 clang-formatter 忽略目录时误伤同前缀目录的问题 ([#18613](https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/18613)) @FanWu-ai
+* 统一调试截图与录像导出文件的落盘位置到用户目录 @ABA2396
 
 </details>

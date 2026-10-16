@@ -1,6 +1,6 @@
 // <copyright file="GlobalGuiRenameConverter.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -24,6 +24,8 @@ namespace MaaWpfGui.Configuration.Converter.Specific;
 
 public class GlobalGuiRenameConverter : JsonConverter<Root>
 {
+    private static readonly ILogger _logger = Log.ForContext<GlobalGuiRenameConverter>();
+
     public override Root? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.StartObject)
@@ -60,7 +62,7 @@ public class GlobalGuiRenameConverter : JsonConverter<Root>
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to deserialize Root object with GlobalGuiRenameConverter.");
+            _logger.Error(ex, "Failed to deserialize Root object.");
             return JsonSerializer.Deserialize<Root>(jsonDoc.RootElement.GetRawText(), GetOptionsWithoutThisConverter(options));
         }
     }

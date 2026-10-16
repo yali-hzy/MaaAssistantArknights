@@ -1,6 +1,6 @@
 // <copyright file="DataHelper.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -332,6 +332,22 @@ public static class DataHelper
             character.CodeName.Equals(codeName, StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// 将干员 ID 归一化为基础形态 ID。阿米娅等升变干员在 battle_data 中每个形态一条记录，
+    /// 游戏内却是同一个干员；干员识别回传的是玩家当前形态的 ID，展示与存储前须换回基础形态。
+    /// </summary>
+    /// <param name="id">干员 ID</param>
+    /// <returns>归一化后的干员 ID，无等价条目时原样返回</returns>
+    public static string GetCanonicalOperId(string id) => _promotedOperIds.GetValueOrDefault(id, id);
+
+    /// <summary>
+    /// 判断是否为升变形态条目（如阿米娅的近卫/医疗形态）。这类条目与基础形态并存于干员全集，
+    /// 但升变不会获得新干员——是否拥有只看基础形态，遍历全集时不应把形态条目当独立干员处理。
+    /// </summary>
+    /// <param name="id">干员 ID</param>
+    /// <returns>是升变形态条目返回 <see langword="true"/></returns>
+    public static bool IsPromotedOperId(string id) => _promotedOperIds.ContainsKey(id);
+
     public class CharacterInfo
     {
         [JsonIgnore]
@@ -368,7 +384,7 @@ public static class DataHelper
         public string? Position { get; set; }
 
         [JsonProperty("profession")]
-        public OperatorRole Type { get; set; } = OperatorRole.Unknown;
+        public OperatorRole Role { get; set; } = OperatorRole.Unknown;
 
         [JsonProperty("rangeId")]
         public List<string>? RangeId { get; set; }
@@ -376,7 +392,7 @@ public static class DataHelper
         [JsonProperty("rarity")]
         public int Rarity { get; set; }
 
-        public bool IsOperator => Type is
+        public bool IsOperator => Role is
             OperatorRole.Caster or
             OperatorRole.Medic or
             OperatorRole.Pioneer or
@@ -466,8 +482,14 @@ public static class DataHelper
         "char_615_acspec", // Misery 6★
         "char_616_pithst", // 盟约·辅助干员
         "char_617_sharp2", // 领主·Sharp
-
-        "char_1001_amiya2", // 阿米娅-WARRIOR
-        "char_1037_amiya3", // 阿米娅-MEDIC
     ];
+
+    /// <summary>
+    /// 升变形态 ID 到基础形态 ID 的等价表，供 <see cref="GetCanonicalOperId"/> 归一化。
+    /// </summary>
+    private static readonly Dictionary<string, string> _promotedOperIds = new()
+    {
+        { "char_1001_amiya2", "char_002_amiya" }, // 阿米娅近卫升变形态
+        { "char_1037_amiya3", "char_002_amiya" }, // 阿米娅医疗升变形态
+    };
 }

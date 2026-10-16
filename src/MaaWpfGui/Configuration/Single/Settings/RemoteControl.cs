@@ -1,6 +1,6 @@
 // <copyright file="RemoteControl.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -11,15 +11,14 @@
 // but WITHOUT ANY WARRANTY
 // </copyright>
 #nullable enable
-using PropertyChanged;
+using MaaWpfGui.Models;
 
 namespace MaaWpfGui.Configuration.Single.Settings;
 
 /// <summary>
 /// 远程控制设置
 /// </summary>
-[AddINotifyPropertyChangedInterface]
-public partial class RemoteControl
+public partial class RemoteControl : NotifyPropertyChangedWithValue
 {
     public string RemoteControlGetTaskEndpointUri { get; set; } = string.Empty;
 

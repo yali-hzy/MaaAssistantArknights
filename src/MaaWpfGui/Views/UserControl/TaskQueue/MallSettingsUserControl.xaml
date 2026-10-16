@@ -20,19 +20,18 @@
     <StackPanel>
         <StackPanel Visibility="{c:Binding !EnableAdvancedSettings, Source={x:Static ui_vms:TaskQueueViewModel.TaskSettingVisibilities}}">
             <CheckBox
-                Margin="10,10,10,5"
+                Margin="0,10,0,5"
                 Block.TextAlignment="Left"
                 Content="{DynamicResource Visiting}"
                 IsChecked="{Binding CreditVisitFriendsEnabled}" />
             <StackPanel
-                Margin="10,0,10,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
                 Visibility="{c:Binding CreditVisitFriendsEnabled}">
                 <controls:TextBlock
                     Margin="2.5,0,7.5,0"
-                    Opacity="{c:Binding 'Idle and Inited ? 1 : 0.5',
+                    Opacity="{c:Binding 'Run.Idle and Run.Inited ? 1 : 0.5',
                                         Source={x:Static helper:Instances.TaskQueueViewModel}}"
                     Text="└" />
                 <CheckBox
@@ -43,7 +42,7 @@
             </StackPanel>
 
 
-            <StackPanel Margin="10,10,10,5" Orientation="Horizontal">
+            <StackPanel Margin="0,10,0,5" Orientation="Horizontal">
                 <CheckBox
                     MaxWidth="{c:Binding '220 - ActualWidth',
                                          ElementName=CreditFightTipTooltipBlock}"
@@ -57,14 +56,13 @@
                 <controls:TooltipBlock x:Name="CreditFightTipTooltipBlock" TooltipText="{DynamicResource CreditFightTip}" />
             </StackPanel>
             <StackPanel
-                Margin="10,0,10,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Orientation="Horizontal"
                 Visibility="{c:Binding CreditFightTaskEnabled}">
                 <controls:TextBlock
                     Margin="2.5,0,7.5,0"
-                    Opacity="{c:Binding 'Idle and Inited ? 1 : 0.5',
+                    Opacity="{c:Binding 'Run.Idle and Run.Inited ? 1 : 0.5',
                                         Source={x:Static helper:Instances.TaskQueueViewModel}}"
                     Text="├" />
                 <CheckBox
@@ -74,42 +72,40 @@
                     Visibility="{c:Binding CreditFightTaskEnabled}" />
             </StackPanel>
             <StackPanel
-                Margin="10,5,10,0"
+                Margin="0,5,0,0"
                 Orientation="Horizontal"
                 Visibility="{c:Binding CreditFightTaskEnabled}">
                 <controls:TextBlock
                     Margin="2.5,0,7.5,0"
-                    Opacity="{c:Binding 'Idle and Inited ? 1 : 0.5',
+                    Opacity="{c:Binding 'Run.Idle and Run.Inited ? 1 : 0.5',
                                         Source={x:Static helper:Instances.TaskQueueViewModel}}"
                     Text="└" />
-                <controls:TextBlock Opacity="{c:Binding 'Idle and Inited ? 1 : 0.5', Source={x:Static helper:Instances.TaskQueueViewModel}}" Text="{DynamicResource UseFormation}" />
+                <controls:TextBlock Opacity="{c:Binding 'Run.Idle and Run.Inited ? 1 : 0.5', Source={x:Static helper:Instances.TaskQueueViewModel}}" Text="{DynamicResource UseFormation}" />
                 <ComboBox
                     Margin="6,0,0,0"
                     HorizontalAlignment="Left"
                     DisplayMemberPath="Display"
-                    IsHitTestVisible="{Binding Idle, Source={x:Static ui_vms:TaskQueueViewModel.TaskSettingDataContext}}"
                     ItemsSource="{Binding FormationSelectList}"
                     SelectedValue="{Binding CreditFightSelectFormation}"
                     SelectedValuePath="Value" />
             </StackPanel>
 
             <CheckBox
-                Margin="10"
+                Margin="0,10"
                 Block.TextAlignment="Left"
                 Content="{DynamicResource SocialPtShop}"
                 IsChecked="{Binding CreditShopping}" />
 
             <TextBlock
-                Margin="10,0,0,5"
+                Margin="0,0,0,5"
                 Foreground="{DynamicResource ThirdlyTextBrush}"
                 Text="{DynamicResource ReceptionOptionsRequireInfrast}"
                 TextWrapping="Wrap" />
             <Border
-                Margin="10,0"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 CornerRadius="4">
-                <StackPanel Opacity="{c:Binding 'Idle and Inited ? 1 : 0.5', Source={x:Static helper:Instances.TaskQueueViewModel}}">
+                <StackPanel Opacity="{c:Binding 'Run.Idle and Run.Inited ? 1 : 0.5', Source={x:Static helper:Instances.TaskQueueViewModel}}">
                     <controls:TextBlock
                         Margin="6,8"
                         HorizontalAlignment="Stretch"

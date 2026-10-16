@@ -1,6 +1,6 @@
 // <copyright file="InfrastSettingsUserControlModel.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -31,11 +31,10 @@ using MaaWpfGui.Utilities.ValueType;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Serilog;
+using static MaaWpfGui.Main.AsstProxy;
+using Mode = MaaWpfGui.ViewModels.UserControl.TaskQueue.InfrastMode;
 
 namespace MaaWpfGui.ViewModels.UserControl.TaskQueue;
-
-using static MaaWpfGui.Main.AsstProxy;
-using Mode = InfrastMode;
 
 /// <summary>
 /// 基建任务
@@ -51,11 +50,47 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
     public InfrastSettingsUserControlModel()
     {
         _runningState = RunningState.Instance;
+        foreach (var item in WeeklyScheduleSource)
+        {
+            item.PropertyChanged += (_, args) => {
+                if (args.PropertyName == nameof(WeeklyScheduleItem.Value))
+                {
+                    SaveWeeklySchedule();
+                }
+            };
+        }
     }
 
     public static InfrastSettingsUserControlModel Instance { get; }
 
     private static readonly ILogger _logger = Log.ForContext<InfrastSettingsUserControlModel>();
+
+    // 默认模式的固定顺序，也是自定义模式未拖拽改序时的执行顺序；宿舍须在换人设施之后，否则换下的干员送不进宿舍
+    private static readonly InfrastRoomType[] _normalFacilityOrder =
+    [
+        InfrastRoomType.Power,
+        InfrastRoomType.Office,
+        InfrastRoomType.Control,
+        InfrastRoomType.Mfg,
+        InfrastRoomType.Trade,
+        InfrastRoomType.Reception,
+        InfrastRoomType.Recycle,
+        InfrastRoomType.Dorm,
+        InfrastRoomType.Processing,
+        InfrastRoomType.Training,
+        InfrastRoomType.AssistantChange,
+    ];
+
+    private static readonly (string Value, string LocalizationKey)[] _fiammettaTargetEntries =
+    [
+        ("清流", "InfrastFiammettaTargetPurestream"),
+        ("可露希尔", "InfrastFiammettaTargetClosure"),
+        ("但书", "InfrastFiammettaTargetProviso"),
+        ("巫恋", "InfrastFiammettaTargetShamare"),
+        ("龙舌兰", "InfrastFiammettaTargetTequila"),
+        ("歌蕾蒂娅", "InfrastFiammettaTargetGladiia"),
+    ];
+
     private readonly RunningState _runningState;
 
     /// <summary>
@@ -67,6 +102,7 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
     {
         var preList = GetTaskConfig<InfrastTask>().RoomList;
         var set = new HashSet<InfrastRoomType>(preList.Select(i => i.Room));
+        bool assistantChangeMissing = !set.Contains(InfrastRoomType.AssistantChange);
 
         // 房间列表不完整，补全
         if (set.Count != Enum.GetValues<InfrastRoomType>().Length || set.Count != preList.Count)
@@ -78,6 +114,16 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
                 {
                     list.Add(new InfrastTask.RoomInfo(room, false));
                 }
+            }
+            SetTaskConfig<InfrastTask>(t => t.RoomList.SequenceEqual(list), t => t.RoomList = list);
+            preList = GetTaskConfig<InfrastTask>().RoomList;
+        }
+        if (!assistantChangeMissing && GetTaskConfig<InfrastTask>().Mode == Mode.Normal)
+        {
+            var list = new List<InfrastTask.RoomInfo>();
+            foreach (var room in _normalFacilityOrder)
+            {
+                list.Add(preList.First(i => i.Room == room));
             }
             SetTaskConfig<InfrastTask>(t => t.RoomList.SequenceEqual(list), t => t.RoomList = list);
         }
@@ -101,7 +147,7 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
     /// <summary>
     /// Gets or sets the infrast item view models.
     /// </summary>
-    public ObservableCollection<InfrastRoomItemViewModel> InfrastRoomModels { get; set; } = [];
+    public ObservableCollection<InfrastRoomItemViewModel> InfrastRoomModels { get; set => SetAndNotify(ref field, value); } = [];
 
     /// <summary>
     /// Gets the list of uses of drones.
@@ -125,6 +171,13 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
         ("243_layout_3_times_a_day.json", "243Time3"),
         ("243_layout_4_times_a_day.json", "243Time4"),
         ("333_layout_for_Orundum_3_times_a_day.json", "333Time3"));
+
+    public LocalizedObservableList<string> FiammettaTargetList { get; } = new(_fiammettaTargetEntries);
+
+    public LocalizedObservableList<string> OptionalFiammettaTargetList { get; } = new([
+        (string.Empty, "InfrastFiammettaTargetNone"),
+        .. _fiammettaTargetEntries,
+    ]);
 
     /// <summary>
     /// Gets or sets the threshold to enter dormitory.
@@ -192,6 +245,11 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
                 return;
             }
 
+            if (value == Mode.Normal)
+            {
+                RefreshInfrastRoomList();
+            }
+
             ParseCustomInfrastPlan();
         }
     }
@@ -232,7 +290,96 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
         set => SetTaskConfig<InfrastTask>(t => t.ContinueTraining == value, t => t.ContinueTraining = value);
     }
 
+    public string FiammettaTarget1
+    {
+        get => GetTaskConfig<InfrastTask>().FiammettaTarget1;
+        set => SetTaskConfig<InfrastTask>(t => t.FiammettaTarget1 == value, t => t.FiammettaTarget1 = value);
+    }
+
+    public string FiammettaTarget2
+    {
+        get => GetTaskConfig<InfrastTask>().FiammettaTarget2;
+        set => SetTaskConfig<InfrastTask>(t => t.FiammettaTarget2 == value, t => t.FiammettaTarget2 = value);
+    }
+
+    public string FiammettaTarget3
+    {
+        get => GetTaskConfig<InfrastTask>().FiammettaTarget3;
+        set => SetTaskConfig<InfrastTask>(t => t.FiammettaTarget3 == value, t => t.FiammettaTarget3 = value);
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether 常规模式换班开始时使用菲亚梅塔为恢复目标恢复心情。
+    /// </summary>
+    public bool FiammettaRecoveryEnabled
+    {
+        get => GetTaskConfig<InfrastTask>().FiammettaRecoveryEnabled;
+        set => SetTaskConfig<InfrastTask>(t => t.FiammettaRecoveryEnabled == value, t => t.FiammettaRecoveryEnabled = value);
+    }
+
+    public bool UsePinusSylvestris
+    {
+        get => GetTaskConfig<InfrastTask>().UsePinusSylvestris;
+        set => SetTaskConfig<InfrastTask>(t => t.UsePinusSylvestris == value, t => t.UsePinusSylvestris = value);
+    }
+
+    public bool UsePerceptionInformation
+    {
+        get => GetTaskConfig<InfrastTask>().UsePerceptionInformation;
+        set => SetTaskConfig<InfrastTask>(
+            t => t.UsePerceptionInformation == value,
+            t => t.UsePerceptionInformation = value);
+    }
+
+    public bool UseWorldlyPlight
+    {
+        get => GetTaskConfig<InfrastTask>().UseWorldlyPlight;
+        set => SetTaskConfig<InfrastTask>(t => t.UseWorldlyPlight == value, t => t.UseWorldlyPlight = value);
+    }
+
+    public bool UseAbyssalHunter
+    {
+        get => GetTaskConfig<InfrastTask>().UseAbyssalHunter;
+        set => SetTaskConfig<InfrastTask>(t => t.UseAbyssalHunter == value, t => t.UseAbyssalHunter = value);
+    }
+
     public const string UserDefined = "user_defined";
+
+    public bool UseWeeklySchedule
+    {
+        get => GetTaskConfig<InfrastTask>().UseWeeklySchedule;
+        set => SetTaskConfig<InfrastTask>(t => t.UseWeeklySchedule == value, t => t.UseWeeklySchedule = value);
+    }
+
+    public ObservableCollection<WeeklyScheduleItem> WeeklyScheduleSource { get; } = [.. Enum.GetValues<DayOfWeek>().Select(i => new WeeklyScheduleItem(i))];
+
+    private void RefreshWeeklySchedule()
+    {
+        IsRefreshingUI = true;
+        try
+        {
+            var plan = GetTaskConfig<InfrastTask>().WeeklySchedule;
+            foreach (var item in WeeklyScheduleSource)
+            {
+                item.Value = !plan.TryGetValue(item.DayOfWeek, out var value) || value;
+            }
+        }
+        finally
+        {
+            IsRefreshingUI = false;
+        }
+    }
+
+    private void SaveWeeklySchedule()
+    {
+        if (IsRefreshingUI)
+        {
+            return;
+        }
+
+        var plan = WeeklyScheduleSource.ToDictionary(i => i.DayOfWeek, i => i.Value);
+        SetTaskConfig<InfrastTask>(t => t.WeeklySchedule.SequenceEqual(plan), t => t.WeeklySchedule = plan);
+    }
 
     /// <summary>
     /// Gets or sets the uses of drones.
@@ -535,6 +682,7 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
     {
         if (baseTask is InfrastTask)
         {
+            RefreshWeeklySchedule();
             RefreshInfrastRoomList();
             RefreshCustomInfrastPlanList();
             Refresh();
@@ -551,6 +699,15 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
         UsesOfDronesList.RefreshLocalization();
         DefaultInfrastList.RefreshLocalization();
         InfrastModeList.RefreshLocalization();
+        FiammettaTargetList.RefreshLocalization();
+        OptionalFiammettaTargetList.RefreshLocalization();
+        foreach (var item in WeeklyScheduleSource)
+        {
+            item.RefreshLocalization();
+        }
+
+        // 重建显示列表以刷新 _defaultItem 固化的 ｢自动切换（xx）｣ 前缀，选中值由重建逻辑保留
+        RefreshCustomInfrastPlanList();
     }
 
     private interface ISerialize : ITaskQueueModelSerialize
@@ -562,9 +719,17 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
                 return (null, []);
             }
 
+            if (infrast.UseWeeklySchedule && infrast.WeeklySchedule.TryGetValue(Instances.TaskQueueViewModel.CurDayOfWeek, out var isEnabled) && !isEnabled)
+            {
+                Instances.TaskQueueViewModel.AddLog(LocalizationHelper.GetString("InfrastSkippedWeeklySchedule"), UiLogColor.Info);
+                return (null, []);
+            }
+
+            IEnumerable<InfrastTask.RoomInfo> rooms =
+                infrast.Mode == Mode.Normal ? infrast.RoomList.OrderBy(i => i.Room) : infrast.RoomList;
             var task = new AsstInfrastTask {
                 Mode = infrast.Mode,
-                Facilitys = [.. infrast.RoomList.Where(i => i.IsEnabled).Select(i => i.Room.ToString())],
+                Facilitys = [.. rooms.Where(i => i.IsEnabled).Select(i => i.Room.ToString())],
                 UsesOfDrones = infrast.UsesOfDrones,
                 ContinueTraining = infrast.ContinueTraining,
                 DormThreshold = infrast.DormThreshold / 100.0,
@@ -574,6 +739,12 @@ public class InfrastSettingsUserControlModel : TaskSettingsViewModel, InfrastSet
                 ReceptionMessageBoard = infrast.ReceptionMessageBoard,
                 ReceptionClueExchange = infrast.ReceptionClueExchange,
                 ReceptionSendClue = infrast.SendClue,
+                FiammettaTargets = [infrast.FiammettaTarget1, infrast.FiammettaTarget2, infrast.FiammettaTarget3],
+                FiammettaRecoveryEnabled = infrast.FiammettaRecoveryEnabled,
+                UsePinusSylvestris = infrast.UsePinusSylvestris,
+                UsePerceptionInformation = infrast.UsePerceptionInformation,
+                UseWorldlyPlight = infrast.UseWorldlyPlight,
+                UseAbyssalHunter = infrast.UseAbyssalHunter,
                 Filename = infrast.Filename,
             };
 

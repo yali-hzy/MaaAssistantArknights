@@ -1,6 +1,6 @@
 // <copyright file="RuntimeSettings.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -13,24 +13,21 @@
 #nullable enable
 using System;
 using System.Text.Json.Serialization;
+using MaaWpfGui.Models;
 using MaaWpfGui.ViewModels.UserControl.Settings;
-using PropertyChanged;
 
 namespace MaaWpfGui.Configuration.Single.Settings;
 
 /// <summary>
 /// wpf运行时设置
 /// </summary>
-[AddINotifyPropertyChangedInterface]
-public partial class RuntimeSettings : IJsonOnDeserialized
+public partial class RuntimeSettings : NotifyPropertyChangedWithValue, IJsonOnDeserialized
 {
     public Constants.Enums.ClientType ClientType { get; set; } = Constants.Enums.ClientType.Official;
 
     public bool StartGame { get; set; } = true;
 
     public bool DeployWithPause { get; set; }
-
-    public bool AutoRestartOnDrop { get; set; } = true;
 
     public bool RoguelikeDelayAbortUntilCombatComplete { get; set; }
 
@@ -49,21 +46,17 @@ public partial class RuntimeSettings : IJsonOnDeserialized
 
     public bool BlockSleepWithScreenOn { get; set; } = true;
 
-    public bool ReportToPenguin { get; set; } = true;
+    /// <summary>
+    /// 运行时长上限，从开始任务起计时，到时停止任务；null 为右键半选，仅生效一次
+    /// </summary>
+    public bool? EnableRunDurationLimit { get; set; } = false;
 
-    public string PenguinId { get; set; } = string.Empty;
+    public int RunDurationLimitMinutes { get; set; } = 240;
 
-    public bool ReportToYituliu { get; set; } = true;
-
-    public bool EnableStallTimeout { get; set; } = true;
-
-    public int StallTimeoutReminderIntervalMinutes { get; set; } = 30;
-
-    public int StallTimeoutMinutes { get; set; } = 30;
+    public bool RunDurationLimitExecutePostActions { get; set; } = true;
 
     public void OnDeserialized()
     {
-        StallTimeoutMinutes = Math.Clamp(StallTimeoutMinutes, 0, GameSettingsUserControlModel.TimeoutMaxMinutes);
-        StallTimeoutReminderIntervalMinutes = Math.Clamp(StallTimeoutReminderIntervalMinutes, 1, GameSettingsUserControlModel.TimeoutMaxMinutes);
+        RunDurationLimitMinutes = Math.Clamp(RunDurationLimitMinutes, 1, GameSettingsUserControlModel.TimeoutMaxMinutes);
     }
 }

@@ -1,6 +1,6 @@
 // <copyright file="EmulatorHelper.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -20,6 +20,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using MaaWpfGui.Configuration.Factory;
 using MaaWpfGui.Constants.Enums;
+using MaaWpfGui.Extensions;
 using MaaWpfGui.Models.EmulatorConnectionExtra;
 using MaaWpfGui.ViewModels.UI;
 using Serilog;
@@ -76,7 +77,7 @@ public class EmulatorHelper
     /// <summary>
     /// 将 MuMu 端口号转换为实例索引。
     /// MuMu 端口分配公式：port = 16384 + (index % 32) * 32 + floor(index/32) * 4，
-    /// 简化后 index = ((k & 7) << 5) | (k >> 3)，其中 k = (port - 16384) / 4。
+    /// 简化后 index = ((k &amp; 7) &lt;&lt; 5) | (k &gt;&gt; 3)，其中 k = (port - 16384) / 4。
     /// 参见 https://github.com/MaaAssistantArknights/MaaAssistantArknights/pull/17112
     /// </summary>
     /// <param name="port">MuMu ADB 端口号。</param>
@@ -522,7 +523,7 @@ public class EmulatorHelper
         int pid = 0;
         var windowName = new[]
         {
-            "明日方舟",
+            SettingsViewModel.GameSettings.ClientType.ToGameWindowName(),
             "明日方舟 - MuMu模拟器",
             "BlueStacks App Player",
             "BlueStacks",

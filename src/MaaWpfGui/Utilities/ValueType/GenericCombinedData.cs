@@ -1,6 +1,6 @@
 // <copyright file="GenericCombinedData.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -49,4 +49,19 @@ public class GenericCombinedData<TValueType>() : PropertyChangedBase
         get => _value;
         set => SetAndNotify(ref _value, value);
     }
+
+    private bool _isEnabled = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the item is selectable.
+    /// 供 ItemContainerStyle 绑定以置灰不可选项。
+    /// </summary>
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set => SetAndNotify(ref _isEnabled, value);
+    }
+
+    /// <inheritdoc/>
+    public override string ToString() => Display;
 }

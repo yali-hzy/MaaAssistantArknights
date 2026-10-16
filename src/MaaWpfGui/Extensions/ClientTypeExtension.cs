@@ -1,6 +1,6 @@
 // <copyright file="ClientTypeExtension.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -37,6 +37,18 @@ public static class ClientTypeExtension
             ClientType.JP => JP,
             ClientType.KR => KR,
             ClientType.Txwy => Txwy,
+            _ => throw new ArgumentOutOfRangeException(nameof(clientType), clientType, null),
+        };
+    }
+
+    public static string ToGameWindowName(this ClientType clientType)
+    {
+        return clientType switch {
+            ClientType.Official or ClientType.Bilibili => "明日方舟",
+            ClientType.EN => "Arknights",
+            ClientType.JP => "アークナイツ",
+            ClientType.KR => "명일방주",
+            ClientType.Txwy => "明日方舟",
             _ => throw new ArgumentOutOfRangeException(nameof(clientType), clientType, null),
         };
     }

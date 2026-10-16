@@ -1,6 +1,6 @@
 // <copyright file="SSSCopilotModel.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -107,9 +107,9 @@ public class SSSCopilotModel : CopilotBase
             : key;
     }
 
-    public List<(string Output, string? Color)> Output()
+    public List<CopilotOutput> Output()
     {
-        var output = new List<(string, string?)>();
+        var output = new List<CopilotOutput>();
 
         if (Documentation is not null)
         {
@@ -134,8 +134,8 @@ public class SSSCopilotModel : CopilotBase
         foreach (var oper in Opers ?? [])
         {
             count++;
-            var localizedName = DataHelper.GetLocalizedCharacterName(oper.Name);
-            output.Add(($"{localizedName}, {LocalizationHelper.GetString("CopilotSkill")} {oper.Skill}", null));
+            var localizedName = DataHelper.GetLocalizedCharacterName(oper.Name) ?? oper.Name;
+            output.Add(new CopilotOutput([new(localizedName, oper.Name), new($", {LocalizationHelper.GetString("CopilotSkill")} {oper.Skill}")], null));
         }
 
         output.Add((LocalizationHelper.GetStringFormat("TotalOperatorsCount", count), null));
@@ -229,6 +229,43 @@ public class SSSCopilotModel : CopilotBase
 
             [JsonProperty("kills")]
             public int? Kills { get; set; }
+
+            // Click 的点击区域，与 location 至少填一个，同时填写时优先使用 rect；begin/end 为 Swipe 起终点区域；均为 720p 基准像素矩形 [x, y, w, h]
+            [JsonProperty("rect")]
+            public List<int>? Rect { get; set; }
+
+            [JsonProperty("begin")]
+            public List<int>? Begin { get; set; }
+
+            [JsonProperty("end")]
+            public List<int>? End { get; set; }
+
+            [JsonProperty("duration")]
+            public int? Duration { get; set; }
+
+            [JsonProperty("extra_swipe")]
+            public int? ExtraSwipe { get; set; }
+
+            // slope 为 ×10 整数，10 即 1.0；null（未填）时 core 按 10 处理，显式 0 合法（即斜率 0.0）
+            [JsonProperty("slope_in")]
+            public int? SlopeIn { get; set; }
+
+            [JsonProperty("slope_out")]
+            public int? SlopeOut { get; set; }
+
+            [JsonProperty("with_pause")]
+            public bool? WithPause { get; set; }
+
+            [JsonProperty("high_resolution_swipe_fix")]
+            public bool? HighResolutionSwipeFix { get; set; }
+
+            // MoveCamera 专用：true 时不等待当前波次结束、击杀数不清零，用于同一波次内移动镜头；null（未填）时 core 按 false 处理
+            [JsonProperty("keep_kills")]
+            public bool? KeepKills { get; set; }
+
+            // MoveCamera 专用：镜头移动量 [x 格数, y 格数]，可小数可负
+            [JsonProperty("distance")]
+            public List<double>? Distance { get; set; }
         }
     }
 }

@@ -1,6 +1,6 @@
 // <copyright file="Copilot.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -13,8 +13,8 @@
 
 #nullable enable
 using System.Collections.Generic;
+using MaaWpfGui.Models;
 using MaaWpfGui.ViewModels.Items;
-using PropertyChanged;
 using static MaaWpfGui.Configuration.Factory.ConfigFactory;
 using static MaaWpfGui.Models.AsstTasks.AsstCopilotTask;
 using static MaaWpfGui.ViewModels.UI.CopilotViewModel;
@@ -24,8 +24,7 @@ namespace MaaWpfGui.Configuration.Single.Settings;
 /// <summary>
 /// 自动战斗设置
 /// </summary>
-[AddINotifyPropertyChangedInterface]
-public partial class Copilot
+public partial class Copilot : NotifyPropertyChangedWithValue
 {
     public void EventBinding(string prefix)
     {
@@ -39,6 +38,8 @@ public partial class Copilot
     public List<UserAdditional> UserAdditional { get; set; } = [];
 
     public CopilotSupportMode SupportMode { get; set; } = CopilotSupportMode.WhenNeeded;
+
+    public bool UseFormation { get; set; } = false;
 
     public int SelectFormation { get; set; } = 1;
 

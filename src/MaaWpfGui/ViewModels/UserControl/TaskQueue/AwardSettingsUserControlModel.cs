@@ -1,6 +1,6 @@
 // <copyright file="AwardSettingsUserControlModel.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -102,6 +102,15 @@ public class AwardSettingsUserControlModel : TaskSettingsViewModel, AwardSetting
         set => SetTaskConfig<AwardTask>(t => t.SpecialAccess == value, t => t.SpecialAccess = value);
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to collect limited-time sign-in event rewards.
+    /// </summary>
+    public bool ReceiveSignInEvent
+    {
+        get => GetTaskConfig<AwardTask>().SignInEvent;
+        set => SetTaskConfig<AwardTask>(t => t.SignInEvent == value, t => t.SignInEvent = value);
+    }
+
     public override void RefreshUI(BaseTask baseTask)
     {
         if (baseTask is AwardTask)
@@ -128,6 +137,7 @@ public class AwardSettingsUserControlModel : TaskSettingsViewModel, AwardSetting
                 Orundum = award.Orundum,
                 Mining = award.Mining,
                 SpecialAccess = award.SpecialAccess,
+                SignInEvent = award.SignInEvent,
             };
             return taskId switch {
                 int id when id > 0 => (Instances.AsstProxy.AsstSetTaskParamsEncoded(id, task), [id]),

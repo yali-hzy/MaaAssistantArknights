@@ -1,6 +1,6 @@
 // <copyright file="GuiSettingsUserControlModel.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using HandyControl.Controls;
 using MaaWpfGui.Configuration.Factory;
 using MaaWpfGui.Constants;
 using MaaWpfGui.Helper;
@@ -42,6 +41,7 @@ public class GuiSettingsUserControlModel : PropertyChangedBase
     {
         PropertyDependsOnUtility.InitializePropertyDependencies(this);
         LocalizationHelper.LanguageChanged += RefreshLocalization;
+        ApplyTransitionSpeed();
     }
 
     public static GuiSettingsUserControlModel Instance { get; }
@@ -73,6 +73,14 @@ public class GuiSettingsUserControlModel : PropertyChangedBase
         (InverseClearType.Clear, "Clear"),
         (InverseClearType.Inverse, "Inverse"),
         (InverseClearType.ClearInverse, "Switchable"));
+
+    /// <summary>
+    /// Gets the list of transition animation speeds.
+    /// </summary>
+    public LocalizedObservableList<TransitionSpeedType> TransitionSpeedList { get; } = new(
+        (TransitionSpeedType.Normal, "TransitionSpeedNormal"),
+        (TransitionSpeedType.Fast, "TransitionSpeedFast"),
+        (TransitionSpeedType.None, "TransitionSpeedNone"));
 
     /// <summary>
     /// Gets or sets a value indicating whether to use tray icon.
@@ -133,32 +141,20 @@ public class GuiSettingsUserControlModel : PropertyChangedBase
         }
     } = ConfigFactory.Root.Gui.HideCloseButton;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether to use notification.
-    /// </summary>
-    public bool UseNotify
-    {
-        get => ConfigFactory.Root.Gui.UseNotify;
-        set {
-            ConfigFactory.Root.Gui.UseNotify = value;
-            NotifyOfPropertyChange();
-            if (value)
-            {
-                ToastNotification.ShowDirect("Test test");
-                var (isAvailable, detail) = ToastNotification.ToastNotificationCheck();
-                if (!isAvailable)
-                {
-                    Growl.Error(LocalizationHelper.GetStringFormat("ToastNotificationUnavailable", detail));
-                }
-            }
-        }
-    }
-
     public bool MainTasksInvertNullFunction
     {
         get => ConfigFactory.Root.Gui.MainTasksInvertNullFunction;
         set {
             ConfigFactory.Root.Gui.MainTasksInvertNullFunction = value;
+            NotifyOfPropertyChange();
+        }
+    }
+
+    public bool HideHoverActionButtons
+    {
+        get => ConfigFactory.Root.Gui.HideHoverActionButtons;
+        set {
+            ConfigFactory.Root.Gui.HideHoverActionButtons = value;
             NotifyOfPropertyChange();
         }
     }
@@ -197,6 +193,29 @@ public class GuiSettingsUserControlModel : PropertyChangedBase
             AskToRestartToApplySettings();
             */
         }
+    }
+
+    public TransitionSpeedType TransitionSpeed
+    {
+        get => ConfigFactory.Root.Gui.TransitionSpeed;
+        set {
+            ConfigFactory.Root.Gui.TransitionSpeed = value;
+            NotifyOfPropertyChange();
+            ApplyTransitionSpeed();
+        }
+    }
+
+    /// <summary>
+    /// 将过渡速度档位同步到过渡控件的全局时长，启动与切换档位时调用，改档立即生效。
+    /// </summary>
+    public void ApplyTransitionSpeed()
+    {
+        var normalMs = Styles.Controls.TransitioningContentControl.NormalDurationMilliseconds;
+        Styles.Controls.TransitioningContentControl.TransitionDuration = ConfigFactory.Root.Gui.TransitionSpeed switch {
+            TransitionSpeedType.Fast => TimeSpan.FromMilliseconds(normalMs / 2),
+            TransitionSpeedType.None => TimeSpan.Zero,
+            _ => TimeSpan.FromMilliseconds(normalMs),
+        };
     }
 
     public void SwitchDarkMode()
@@ -498,48 +517,6 @@ public class GuiSettingsUserControlModel : PropertyChangedBase
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to ignore bad modules and use software rendering.
-    /// </summary>
-    public bool IgnoreBadModulesAndUseSoftwareRendering
-    {
-        get => ConfigFactory.Root.Gui.IgnoreBadModulesAndUseSoftwareRendering;
-        set {
-            ConfigFactory.Root.Gui.IgnoreBadModulesAndUseSoftwareRendering = value;
-            NotifyOfPropertyChange();
-            if (value)
-            {
-                var result = MessageBoxHelper.Show(
-                    LocalizationHelper.GetString("BadModules.ResetWarning"),
-                    LocalizationHelper.GetString("Tip"),
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            else
-            {
-                var mainWindow = Application.Current.MainWindow;
-                if (mainWindow != null)
-                {
-                    mainWindow.Show();
-                    mainWindow.WindowState = WindowState.Normal;
-                    mainWindow.Activate();
-                }
-
-                var result = MessageBoxHelper.Show(
-                    LocalizationHelper.GetString("BadModules.ResetSuccess"),
-                    LocalizationHelper.GetString("Tip"),
-                    MessageBoxButton.OKCancel,
-                    MessageBoxImage.Information,
-                    ok: LocalizationHelper.GetString("Ok"),
-                    cancel: LocalizationHelper.GetString("ManualRestart"));
-                if (result == MessageBoxResult.OK)
-                {
-                    Bootstrapper.ShutdownAndRestartWithoutArgs();
-                }
-            }
-        }
-    }
-
-    /// <summary>
     /// 刷新构造时缓存的本地化列表文本。
     /// </summary>
     public void RefreshLocalization()
@@ -548,6 +525,7 @@ public class GuiSettingsUserControlModel : PropertyChangedBase
 
         DarkModeList.RefreshLocalization();
         InverseClearModeList.RefreshLocalization();
+        TransitionSpeedList.RefreshLocalization();
         RefreshWindowTitleAllShowDict();
         Instances.SettingsViewModel.UpdateWindowTitle();
     }

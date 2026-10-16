@@ -1,6 +1,6 @@
 // <copyright file="Gui.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -25,15 +25,15 @@ using static MaaWpfGui.ViewModels.UI.OverlayViewModel;
 
 namespace MaaWpfGui.Configuration.Global;
 
-public class Gui : INotifyPropertyChanged
+public class Gui : NotifyPropertyChangedWithValue
 {
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     public DarkModeType DarkMode { get; set; } = DarkModeType.SyncWithOs;
 
     public bool UseNotify { get; set; } = true;
 
     public bool MainTasksInvertNullFunction { get; set; }
+
+    public bool HideHoverActionButtons { get; set; }
 
     public string Localization { get; set; } = LocalizationHelper.DefaultLanguage;
 
@@ -59,7 +59,13 @@ public class Gui : INotifyPropertyChanged
 
     public bool SaveWindowPlacement { get; set; } = true;
 
+    // 用户上次浏览任务队列 ｢添加任务｣ 菜单时的版本号；空表示从未记录（首次启动），
+    // 此时按当前运行版本正常比较并特判 v6.19 系列（见 TaskQueueViewModel.IsNewerThanBaseline）
+    public string AddTaskMenuSeenVersion { get; set; } = string.Empty;
+
     public InverseClearType InverseClearMode { get; set; } = InverseClearType.Clear;
+
+    public TransitionSpeedType TransitionSpeed { get; set; } = TransitionSpeedType.Normal;
 
     public bool TaskQueueInverseMode { get; set; }
 
@@ -74,8 +80,6 @@ public class Gui : INotifyPropertyChanged
     public DateTimeOffset LastBuyWineTime { get; set; } = DateTimeOffset.MinValue;
 
     public string CustomCulture { get; set; } = string.Empty;
-
-    public bool IgnoreBadModulesAndUseSoftwareRendering { get; set; }
 
     public OverlayTargetInfo OverlayTarget { get; set; } = new();
 
@@ -98,6 +102,8 @@ public class Gui : INotifyPropertyChanged
 
     public Background Background { get; set; } = new();
 
+    public Performance Performance { get; set; } = new();
+
     // ===== 背景设置（莫奈取色） =====
     public bool BackgroundMonetEnabled { get; set; } = false;
 
@@ -111,11 +117,10 @@ public class Gui : INotifyPropertyChanged
     /// </summary>
     public string BackgroundMonetCachedColor { get; set; } = string.Empty;
 
-    [UsedImplicitly]
-    public void OnPropertyChanged(string propertyName, object before, object after)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventDetailArgs(propertyName, before, after));
-    }
+    /// <summary>
+    /// 莫奈取色时背景/遮罩系 brush 是否保持主题默认中性色（不施加颜色遮罩）。
+    /// </summary>
+    public bool BackgroundMonetKeepMaskNeutral { get; set; }
 
     /// <summary>
     /// 表示深色模式的类型。
@@ -170,5 +175,26 @@ public class Gui : INotifyPropertyChanged
         /// 用户手动选择颜色。
         /// </summary>
         Custom,
+    }
+
+    /// <summary>
+    /// 表示界面过渡动画的速度档位。
+    /// </summary>
+    public enum TransitionSpeedType
+    {
+        /// <summary>
+        /// 原速。
+        /// </summary>
+        Normal = 0,
+
+        /// <summary>
+        /// 快速。
+        /// </summary>
+        Fast,
+
+        /// <summary>
+        /// 无动画。
+        /// </summary>
+        None,
     }
 }

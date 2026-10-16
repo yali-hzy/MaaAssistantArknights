@@ -1,6 +1,6 @@
 // <copyright file="TimerSettings.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -16,7 +16,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text.Json.Serialization;
-using PropertyChanged;
+using MaaWpfGui.Models;
 using static MaaWpfGui.Configuration.Factory.ConfigFactory;
 
 namespace MaaWpfGui.Configuration.Global;
@@ -24,8 +24,7 @@ namespace MaaWpfGui.Configuration.Global;
 /// <summary>
 /// 定时运行设置
 /// </summary>
-[AddINotifyPropertyChangedInterface]
-public partial class TimerSettings
+public partial class TimerSettings : NotifyPropertyChangedWithValue
 {
     public void EventBinding(string prefix)
     {
@@ -50,6 +49,12 @@ public partial class TimerSettings
     public bool ShowWindowBeforeForceScheduledStart { get; set; }
 
     public bool CustomConfig { get; set; }
+
+    public bool NotifyBeforeScheduledStart { get; set; }
+
+    public int ScheduledStartNotificationMinutes { get; set; } = 5;
+
+    public bool ScheduledWakeUp { get; set; }
 
     [JsonInclude]
     public ObservableCollection<Timer> List { get; private set; } = [];

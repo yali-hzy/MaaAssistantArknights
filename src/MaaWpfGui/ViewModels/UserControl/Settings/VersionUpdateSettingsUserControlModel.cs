@@ -1,6 +1,6 @@
 // <copyright file="VersionUpdateSettingsUserControlModel.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -71,9 +71,11 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
     }
 
     /// <summary>
-    /// Gets the core version.
+    /// Gets the core version. UI 预览模式下 Core 未加载，不触碰 native，降级为占位值。
     /// </summary>
-    private static readonly string _coreVersion = Marshal.PtrToStringAnsi(MaaService.AsstGetVersion()) ?? "0.0.1";
+    private static readonly string _coreVersion = Main.Bootstrapper.IsCoreInitSkipped
+        ? "N/A"
+        : Marshal.PtrToStringAnsi(MaaService.AsstGetVersion()) ?? "0.0.1";
 
     public static string CoreVersion => FakeUpdateHelper.IsEnabled ? FakeUpdateHelper.CurrentVersion : _coreVersion;
 
@@ -248,14 +250,14 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
         }
     } = ConfigFactory.Root.Update.HasAcknowledgedNightlyWarning;
 
-    public LocalizedObservableList<string> UpdateSourceList { get; } = new(
-        ("Github", "GlobalSource"),
-        ("MirrorChyan", "MirrorChyan"));
+    public LocalizedObservableList<UpdateSource> UpdateSourceList { get; } = new(
+        (UpdateSource.GitHub, "GlobalSource"),
+        (UpdateSource.MirrorChyan, "MirrorChyan"));
 
     /// <summary>
     /// Gets or sets the type of version to update.
     /// </summary>
-    public string UpdateSource
+    public UpdateSource UpdateSource
     {
         get; set {
             SetAndNotify(ref field, value);
@@ -499,7 +501,7 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
             return;
         }
 
-        if (SettingsViewModel.VersionUpdateSettings.UpdateSource == "MirrorChyan" && string.IsNullOrEmpty(SettingsViewModel.VersionUpdateSettings.MirrorChyanCdk))
+        if (SettingsViewModel.VersionUpdateSettings.UpdateSource == UpdateSource.MirrorChyan && string.IsNullOrEmpty(SettingsViewModel.VersionUpdateSettings.MirrorChyanCdk))
         {
             ToastNotification.ShowDirect(LocalizationHelper.GetString("MirrorChyanSelectedButNoCdk"));
             return;
@@ -514,6 +516,7 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
             VersionUpdateDialogViewModel.CheckUpdateRetT.UnknownError => LocalizationHelper.GetString("NewVersionDetectFailedTitle"),
             VersionUpdateDialogViewModel.CheckUpdateRetT.NetworkError => LocalizationHelper.GetString("CheckNetworking"),
             VersionUpdateDialogViewModel.CheckUpdateRetT.FailedToGetInfo => LocalizationHelper.GetString("GetReleaseNoteFailed"),
+            VersionUpdateDialogViewModel.CheckUpdateRetT.UpdatePackageDownloadFailed => LocalizationHelper.GetString("NewVersionDownloadFailedTitle"),
             VersionUpdateDialogViewModel.CheckUpdateRetT.OK => string.Empty,
             VersionUpdateDialogViewModel.CheckUpdateRetT.NewVersionIsBeingBuilt => LocalizationHelper.GetString("NewVersionIsBeingBuilt"),
             VersionUpdateDialogViewModel.CheckUpdateRetT.OnlyGameResourceUpdated => LocalizationHelper.GetString("GameResourceUpdated"),
@@ -545,7 +548,7 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
             return;
         }
 
-        if (SettingsViewModel.VersionUpdateSettings.UpdateSource == "MirrorChyan" && string.IsNullOrEmpty(SettingsViewModel.VersionUpdateSettings.MirrorChyanCdk))
+        if (SettingsViewModel.VersionUpdateSettings.UpdateSource == UpdateSource.MirrorChyan && string.IsNullOrEmpty(SettingsViewModel.VersionUpdateSettings.MirrorChyanCdk))
         {
             ToastNotification.ShowDirect(LocalizationHelper.GetString("MirrorChyanSelectedButNoCdk"));
             return;
@@ -573,8 +576,8 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
         }
 
         bool success = UpdateSource switch {
-            "Github" => await ResourceUpdater.UpdateFromGithubAsync(),
-            "MirrorChyan" => (ret == VersionUpdateDialogViewModel.CheckUpdateRetT.OK) && await ResourceUpdater.DownloadFromMirrorChyanAsync(uri, releaseNote),
+            UpdateSource.GitHub => await ResourceUpdater.UpdateFromGithubAsync(),
+            UpdateSource.MirrorChyan => (ret == VersionUpdateDialogViewModel.CheckUpdateRetT.OK) && await ResourceUpdater.DownloadFromMirrorChyanAsync(uri, releaseNote),
             _ => await ResourceUpdater.UpdateFromGithubAsync(),
         };
 
@@ -595,6 +598,7 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
     public void ShowChangelog()
     {
         AchievementTrackerHelper.Instance.Unlock(AchievementIds.ChangelogReader);
+        _ = Instances.VersionUpdateDialogViewModel.DownloadMissingContributorAvatarsAsync();
         if (Instances.VersionUpdateDialogViewModel.View is System.Windows.Window window)
         {
             if (window.WindowState == System.Windows.WindowState.Minimized)
@@ -617,5 +621,8 @@ public class VersionUpdateSettingsUserControlModel : PropertyChangedBase
     {
         AllVersionTypeList.RefreshLocalization();
         UpdateSourceList.RefreshLocalization();
+
+        // CDK 剩余天数文本为一次性格式化的本地化串，需通知重算（无 CDK 时 getter 自行返回空串）
+        RefreshMirrorChyanCdkRemaining();
     }
 }

@@ -1,6 +1,6 @@
 // <copyright file="Toolbox.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -12,7 +12,7 @@
 // </copyright>
 
 #nullable enable
-using PropertyChanged;
+using MaaWpfGui.Models;
 using static MaaWpfGui.Configuration.Factory.ConfigFactory;
 using static MaaWpfGui.ViewModels.UI.ToolboxViewModel;
 
@@ -21,8 +21,7 @@ namespace MaaWpfGui.Configuration.Single.Settings;
 /// <summary>
 /// 小工具相关设置
 /// </summary>
-[AddINotifyPropertyChangedInterface]
-public partial class Toolbox
+public partial class Toolbox : NotifyPropertyChangedWithValue
 {
     public void EventBinding(string prefix)
     {
@@ -50,4 +49,21 @@ public partial class Toolbox
     public bool AutoSetTime { get; set; } = true;
 
     public bool ShowPotential { get; set; } = true;
+
+    /// <summary>
+    /// 干员识别卡片是否以干员头像为底板展示
+    /// </summary>
+    public bool OperBoxAvatarMode { get; set; }
+
+    public bool EventShopBlackListDataSupplementInstrument { get; set; }
+
+    public bool EventShopBlackListDataSupplementStick { get; set; }
+
+    public bool EventShopBlackListLmd { get; set; }
+
+    public bool EventShopBlackListFurniturePart { get; set; }
+
+    public bool EventShopBlackListOther { get; set; }
+
+    public string EventShopBlackList { get; set; } = string.Empty;
 }

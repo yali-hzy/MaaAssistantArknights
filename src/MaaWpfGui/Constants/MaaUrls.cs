@@ -1,6 +1,6 @@
 // <copyright file="MaaUrls.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -35,6 +35,11 @@ public static class MaaUrls
 
     public const string PrtsPlus = "https://prts.plus";
 
+    public const string YituliuOpenApiOperatorInfo = "https://backend.yituliu.cn/open-api/operator/info";
+
+    // 一图流个人中心（第三方 API Token 生成处）
+    public const string YituliuAccountHome = "https://ark.yituliu.cn/account/home";
+
     public const string PrtsPlusCopilotGet = "https://prts.maa.plus/copilot/get/";
 
     public const string PrtsPlusCopilotRating = "https://prts.maa.plus/copilot/rating";
@@ -42,6 +47,9 @@ public static class MaaUrls
     public const string PrtsPlusCopilotSetGet = "https://prts.maa.plus/set/get?id=";
 
     public const string MapPrts = "https://map.ark-nights.com/areas?coord_override=maa";
+
+    // 明日方舟工具箱（精英材料计算，可在线编辑培养计划）
+    public const string ArknightsToolbox = "https://arkntools.app/#/material";
 
     public const string MaaApi = "https://api.maa.plus/MaaAssistantArknights/api/";
     public const string MaaApi2 = "https://api2.maa.plus/MaaAssistantArknights/api/";

@@ -75,7 +75,7 @@ bool asst::FightTimesTaskPlugin::_run()
         callback(AsstMsg::SubTaskExtraInfo, fight);
         return false;
     }
-    if (!series) { // 默认连续战斗次数为1, 部分关卡不支持连战
+    if (!series) { // 默认代理倍率为1, 部分关卡不支持代理倍率
         m_series_current = 1;
         fight["details"]["series"] = 1;
         fight["details"]["sanity_cost"] = *sanity_cost;
@@ -339,7 +339,7 @@ bool asst::FightTimesTaskPlugin::select_series_new(int times)
         if (std::abs(dis) > 4) {
             if (dis > 0) {
                 const auto& task = Task.get("FightSeries-List-SlideUp");
-                ctrler()->swipe(task->specific_rect, task->rect_move, 300, false, 3.7, 0.1);
+                ctrler()->swipe(task->specific_rect, task->rect_move, 300, SwipeExtraDirection::None, 3.7, 0.1);
                 sleep(task->post_delay);
                 if (!reanalyze()) {
                     return false;
@@ -347,7 +347,7 @@ bool asst::FightTimesTaskPlugin::select_series_new(int times)
             }
             else if (dis < 0) {
                 const auto& task = Task.get("FightSeries-List-SlideDown");
-                ctrler()->swipe(task->specific_rect, task->rect_move, 300, false, 3.7, 0.1);
+                ctrler()->swipe(task->specific_rect, task->rect_move, 300, SwipeExtraDirection::None, 3.7, 0.1);
                 sleep(task->post_delay);
                 if (!reanalyze()) {
                     return false;
@@ -427,7 +427,7 @@ std::vector<asst::FightSeriesListItem> asst::FightTimesTaskPlugin::analyze_serie
                                         .rect = rect,
                                         .status = match.analyze() ? asst::FightSeriesListItem::Status::NeedMedicine
                                                                   : asst::FightSeriesListItem::Status::Available });
-        /* 假设 连战列表 为6-1
+        /* 假设 代理倍率列表 为6-1
         RegionOCRer analyzer(image);
         analyzer.set_roi(item.rect.move(task->rect_move));
         analyzer.set_replace(Task.get<OcrTaskInfo>("NumberOcrReplace")->replace_map);

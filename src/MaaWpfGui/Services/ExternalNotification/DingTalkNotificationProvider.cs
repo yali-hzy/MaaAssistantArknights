@@ -1,6 +1,6 @@
 // <copyright file="DingTalkNotificationProvider.cs" company="MaaAssistantArknights">
 // Part of the MaaWpfGui project, maintained by the MaaAssistantArknights team (Maa Team)
-// Copyright (C) 2021-2025 MaaAssistantArknights Contributors
+// Copyright (C) 2021-2026 MaaAssistantArknights Contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License v3.0 only as published by
@@ -50,7 +50,8 @@ public class DingTalkNotificationProvider(IHttpService httpService, DingTalkConf
             },
         };
 
-        var response = await httpService.PostAsJsonAsync(new Uri(webhook), requestBody);
+        // token 与签名在 query 中，日志须截断到域名，避免随日志泄漏
+        var response = await httpService.PostAsJsonAsync(new Uri(webhook), requestBody, uriPartial: UriPartial.Authority);
         if (response == null)
         {
             _logger.Warning("Failed to send DingTalk notification: response is null");
